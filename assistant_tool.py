@@ -80,7 +80,7 @@ class AssistantTool:
                 logging.debug(f'execute file success, store the result')
                 logging.debug(f'ans: {row_answer}')
                 answers.append(row_answer)
-        self.export_to_csv()
+        self.export_to_csv(answers)
         logging.info(f'process complete')
 
     def directory_name(self, root):
