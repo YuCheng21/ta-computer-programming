@@ -137,7 +137,7 @@ class AssistantTool:
         return self.WRONG
 
     def export_to_csv(self, answers):
-        csv_filename = f"{datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}.csv"
+        csv_filename = f"{datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}-{self.target_week}.csv"
         df = pd.DataFrame(answers)
         Path(self.export_path).mkdir(parents=True, exist_ok=True)
         df.to_csv(f'{self.export_path}/{csv_filename}', encoding='utf-8')
