@@ -143,3 +143,5 @@ if __name__ == '__main__':
     df = pd.DataFrame(buffer)
     Path(CSV_FOLDER).mkdir(parents=True, exist_ok=True)
     df.to_csv(f'{CSV_FOLDER}/{CSV_FILENAME}', encoding='utf-8')
+    
+    logging.info(f'process complete')
