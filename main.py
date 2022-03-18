@@ -26,7 +26,7 @@ COMPILER_ARGUMENT_BIG5 = '-finput-charset=big5'
 TRAVERSE_DIRECTORY = f"./{TARGET_WEEK}"
 FILE_INPUT = config.week_args[TARGET_WEEK]['file_input']
 OUTPUT_PATTERN = config.week_args[TARGET_WEEK]['output_pattern']
-CSV_FOLDER = "./result"
+CSV_FOLDER = config.csv_folder
 CSV_FILENAME = f"{datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}.csv"
 
 logging.basicConfig(
@@ -35,6 +35,7 @@ logging.basicConfig(
     stream=sys.stderr,
     level=logging.DEBUG if DEBUG else logging.INFO,
 )
+
 
 # def encoding_to_utf8(file_path):
 #     try:
@@ -76,7 +77,6 @@ def compiler(root, file):
         return result.returncode
     logging.debug(f'compile fail second time, return fail result')
     return result.returncode
-    
 
 
 def command_with_stdin(parameters, target):

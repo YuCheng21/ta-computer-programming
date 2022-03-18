@@ -19,7 +19,7 @@
 pip install -r requirements.txt
 ```
 
-執行 `main.py` 並輸出統整表格。
+複製 `example.ini` 並命名為 `env.ini`，設定需要的配置。接著執行 `main.py` 並輸出統整表格。
 
 - main.py:
 

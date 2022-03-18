@@ -36,3 +36,5 @@ week_args['week4'] = {
     'Notes': '課堂完成（算圓周率）',
 }
 
+# Output
+csv_folder = "./result"
