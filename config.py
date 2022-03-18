@@ -21,16 +21,14 @@ week_args['week1'] = {
     'Title': '一元二次方程式公式解',
     'Notes': '(2a) 要加括號',
     'file_input': ["4", "32", "28"],
-    # 'FILE_INPUT': ["1", "6", "8"],
     'output_pattern': [[r'(-1)+', r'(-7)+']],
-    # 'FILE_INPUT': ["1", "6", "8"],
 }
 week_args['week2'] = {
     'Notes': '課堂完成（一元二次重根與無解）',
 }
 week_args['week3'] = {
     'file_input': ["2", "-2"],
-        'output_pattern': [[r'(0\.25)+'], [r'(1/4)+']],
+        'output_pattern': [[r'((0\.25)+|(1\/4)+)']],
 }
 week_args['week4'] = {
     'Notes': '課堂完成（算圓周率）',
