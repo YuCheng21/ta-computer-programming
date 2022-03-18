@@ -11,4 +11,5 @@ if __name__ == '__main__':
         'debug': config.debug,
     }
     tool = assistant_tool.AssistantTool(**arguments)
-    tool.start()
+    answers = tool.start_program()
+    tool.export_to_csv(answers)

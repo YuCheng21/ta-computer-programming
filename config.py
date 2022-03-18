@@ -16,6 +16,9 @@ grade = {
     'not_paid': 0,
 }
 
+# Export
+csv_folder = "./result"
+
 # Week Data
 week_args = dict()
 week_args['week1'] = {
@@ -34,6 +37,3 @@ week_args['week3'] = {
 week_args['week4'] = {
     'Notes': '課堂完成（算圓周率）',
 }
-
-# Export
-csv_folder = "./result"

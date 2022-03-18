@@ -21,15 +21,15 @@ def allow_ext(file):
     pattern = r'\.(c|cpp)$'
     regex = re.search(pattern, file)
     if regex is None:
-        logging.debug(f'file ext not allow')
+        logging.debug(f'file extension not allowed')
         return False
-    logging.debug(f'file ext correct')
+    logging.debug(f'file extension correct')
     return True
 
 
 def encoding_to_utf8(filepath):
     """
-    only can use on windows...
+    deprecated: only can use on windows...
     """
     try:
         file = codecs.open(filepath, 'r', 'ansi').read()
@@ -56,16 +56,17 @@ class AssistantTool:
 
         self.compile_output = 'compile_output'
 
-    def start(self):
+    def start_program(self):
         logging.info(f'start with: {self.target_week}')
-        logging.debug(f'start for traverse folder')
+        logging.debug(f'start traversing the directory')
         answers = []
         for root, dirs, files in os.walk(self.traverse_dir):
             if len(files) == 0:
                 continue
+            directory_name = self.directory_name(root)
             for file in files:
                 logging.debug('===================================================')
-                logging.debug(f'current file name: {self.directory_name(root)}/{file}')
+                logging.debug(f'current file name: {directory_name}/{file}')
                 if allow_ext(file):
                     if self.debug:
                         input("Press the Enter key to proceed...")
@@ -73,15 +74,16 @@ class AssistantTool:
                 else:
                     continue
                 if return_code == 1:
-                    logging.debug(f'compile fail, store the result')
-                    row_answer = [self.directory_name(root), self.COMPILE_FAIL]
+                    logging.debug(f'compilation failed, save result')
+                    row_answer = [directory_name, self.COMPILE_FAIL]
                 else:
                     row_answer = self.executor(root)
-                logging.debug(f'execute file success, store the result')
-                logging.debug(f'ans: {row_answer}')
+                logging.debug(f'execute the file successfully')
+                logging.debug(f'save the result')
+                logging.debug(f'row_answer: {row_answer}')
                 answers.append(row_answer)
-        self.export_to_csv(answers)
-        logging.info(f'process complete')
+        logging.info(f'program complete')
+        return answers
 
     def directory_name(self, root):
         prefix_pattern = f'\.\/{self.target_week}\/'
@@ -94,36 +96,38 @@ class AssistantTool:
 
         # self.encoding_to_utf8(input_filepath)
 
-        logging.debug(f'start to compile file')
+        logging.debug(f'start compiling file')
         compiler_command = 'gcc'
         compiler_argument = '-lstdc++ -lm -w'
         compiler_argument_big5 = '-finput-charset=big5'
         command = f"{compiler_command} '{input_filepath}' -o {output_filepath} {compiler_argument} {compiler_argument_big5}"
         result = subprocess.run(command, shell=True, capture_output=True)
         if result.returncode == 0:
-            logging.debug(f'compile success')
+            logging.debug(f'Compiled successfully')
             return result.returncode
-        logging.debug(f'compile fail, try to compile without big5')
+        logging.debug(f'compilation failed, Try compiling with big5')
         command = f"{compiler_command} '{input_filepath}' -o {output_filepath} {compiler_argument}"
         result = subprocess.run(command, shell=True, capture_output=True)
         if result.returncode == 0:
-            logging.debug(f'compile success')
+            logging.debug(f'Compiled successfully')
             return result.returncode
-        logging.debug(f'compile fail second time, return fail result')
+        logging.debug(f'compilation fails twice, return failure result')
         return result.returncode
 
     def executor(self, root):
-        logging.debug(f'start to execute file')
+        directory_name = self.directory_name(root)
+        logging.debug(f'start file execution')
         command = f"echo '{' '.join(self.stdin)}' | {root}/{self.compile_output}"
         try:
             stdout = subprocess.check_output(command, shell=True, text=True, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as error:
-            logging.debug(f'execute fail, maybe compile fail.')
-            return [self.directory_name(root), self.COMPILE_FAIL]
-        logging.debug(f'execute success, start check the answer')
+            logging.debug(f'execution failed,, maybe compilation failed')
+            return [directory_name, self.COMPILE_FAIL]
+        logging.debug(f'execution succeed')
+        logging.debug(f'start checking answers')
         answer = self.check_answer(stdout)
-        logging.debug(f'check the answer complete')
-        return [self.directory_name(root), answer]
+        logging.debug(f'Check the answer complete')
+        return [directory_name, answer]
 
     def check_answer(self, stdout):
         for or_pattern in self.output_pattern:

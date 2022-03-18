@@ -10,22 +10,27 @@
 
 - Ubuntu 20.04
 - Python 3.8.10
-- Shell
-    - zsh
+- zsh 5.8 (x86_64-ubuntu-linux-gnu)
+- gcc (Ubuntu 9.4.0-1ubuntu1~20.04) 9.4.0
 
 ## Usage
 
 建立 python 虛擬環境，並安裝依賴套件。
 
-```
+```bash
 pip install -r requirements.txt
+# required gcc
 ```
 
 複製 `example.ini` 並命名為 `env.ini`，設定需要的配置。接著執行 `main.py` 並輸出統整表格。
 
 - main.py:
 
-    主要程式進入點，走訪資料夾內所有學生的作業，編譯並執行取得輸出，檢查與設定的答案是否相符，並根據結果產生給分。
+    主要程式進入點。
+
+- assistant_tool.py:
+
+    輔助工具，走訪資料夾內所有學生的作業，編譯並執行取得輸出，檢查與設定的答案是否相符，並根據結果產生給分。
 
 - config.py:
 
