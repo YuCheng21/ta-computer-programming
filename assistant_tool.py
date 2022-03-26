@@ -1,3 +1,4 @@
+import platform
 import re
 import subprocess
 import codecs
@@ -17,6 +18,8 @@ logging.basicConfig(
 
 SHELL = Path(config.shell)
 
+# make sure that the operation system is 'Windows' or 'Linux'.
+operation_system = platform.system()
 
 def allow_ext(file):
     pattern = r'\.(c|cpp)$'
@@ -97,13 +100,19 @@ class AssistantTool:
         compiler_argument = '-lstdc++ -lm -w'
         compiler_argument_big5 = '-finput-charset=big5'
         command = f"{compiler_command} '{input_filepath}' -o {output_filepath} {compiler_argument}"
-        result = subprocess.run(specify_shell(command), shell=True, capture_output=True)
+        if operation_system == 'Windows':
+            result = subprocess.run(specify_shell(command), shell=True, capture_output=True)
+        else:  # Linux
+            result = subprocess.run(command, shell=True, capture_output=True, executable=SHELL.__str__())
         if result.returncode == 0:
             logging.debug(f'Compiled successfully')
             return result.returncode
         logging.debug(f'compilation failed, Try compiling with big5')
         command = f"{compiler_command} '{input_filepath}' -o {output_filepath} {compiler_argument} {compiler_argument_big5}"
-        result = subprocess.run(specify_shell(command), shell=True, capture_output=True)
+        if operation_system == 'Windows':
+            result = subprocess.run(specify_shell(command), shell=True, capture_output=True)
+        else:  # Linux
+            result = subprocess.run(command, shell=True, capture_output=True, executable=SHELL.__str__())
         if result.returncode == 0:
             logging.debug(f'Compiled successfully')
             return result.returncode
@@ -115,7 +124,10 @@ class AssistantTool:
         executable_file = PurePosixPath(directory.joinpath(self.compile_output))
         command = f"echo '{' '.join(self.stdin)}' | {executable_file}"
         try:
-            stdout = subprocess.check_output(specify_shell(command), shell=True, text=True, stderr=subprocess.STDOUT)
+            if operation_system == 'Windows':
+                stdout = subprocess.check_output(specify_shell(command), shell=True, text=True, stderr=subprocess.STDOUT)
+            else:  # Linux
+                stdout = subprocess.check_output(command, shell=True, text=True, stderr=subprocess.STDOUT, executable=SHELL.__str__())
         except subprocess.CalledProcessError as error:
             logging.debug(f'execution failed, maybe compilation failed')
             return [directory.name, self.COMPILE_FAIL]
