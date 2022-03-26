@@ -1,8 +1,7 @@
-import os
 import re
 import subprocess
 import codecs
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import pandas as pd
 from datetime import datetime
 import logging
@@ -15,6 +14,8 @@ logging.basicConfig(
     stream=sys.stderr,
     level=logging.DEBUG if config.debug else logging.INFO,
 )
+
+SHELL = Path(config.shell)
 
 
 def allow_ext(file):
@@ -39,6 +40,10 @@ def encoding_to_utf8(filepath):
         codecs.open(filepath, 'w', 'utf-8').write(file)
 
 
+def specify_shell(command):
+    return [SHELL.__str__(), '-c', command]
+
+
 class AssistantTool:
     def __init__(self, target_week, in_out, grade, export_path, debug) -> None:
         super().__init__()
@@ -60,74 +65,66 @@ class AssistantTool:
         logging.info(f'start with: {self.target_week}')
         logging.debug(f'start traversing the directory')
         answers = []
-        for root, dirs, files in os.walk(self.traverse_dir):
-            if len(files) == 0:
-                continue
-            directory_name = self.directory_name(root)
-            for file in files:
+
+        for directory in Path(self.traverse_dir).iterdir():
+            for file in Path(directory).iterdir():
                 logging.debug('===================================================')
-                logging.debug(f'current file name: {directory_name}/{file}')
-                if allow_ext(file):
-                    if self.debug:
-                        input("Press the Enter key to proceed...")
-                    return_code = self.compiler(root, file)
-                else:
+                logging.debug(f'current file name: {file}')
+                if not allow_ext(file.name):
                     continue
+                if self.debug:
+                    input("Press the Enter key to proceed...")
+                return_code = self.compiler(directory, file)
                 if return_code == 1:
-                    logging.debug(f'compilation failed, save result')
-                    row_answer = [directory_name, self.COMPILE_FAIL]
+                    row_answer = [directory.name, self.COMPILE_FAIL]
                 else:
-                    row_answer = self.executor(root)
-                logging.debug(f'execute the file successfully')
+                    row_answer = self.executor(directory)
                 logging.debug(f'save the result')
                 logging.debug(f'row_answer: {row_answer}')
                 answers.append(row_answer)
         logging.info(f'program complete')
         return answers
 
-    def directory_name(self, root):
-        prefix_pattern = f'\.\/{self.target_week}\/'
-        regex = re.search(prefix_pattern, root)
-        return root[regex.span()[1]:]
+    def compiler(self, directory, file):
+        logging.debug(f'start compiling file')
 
-    def compiler(self, root, file):
-        input_filepath = f'{root}/{file}'
-        output_filepath = f'{root}/{self.compile_output}'
+        input_filepath = PurePosixPath(file)
+        output_filepath = PurePosixPath(directory.joinpath(self.compile_output))
 
         # self.encoding_to_utf8(input_filepath)
 
-        logging.debug(f'start compiling file')
         compiler_command = 'gcc'
         compiler_argument = '-lstdc++ -lm -w'
         compiler_argument_big5 = '-finput-charset=big5'
-        command = f"{compiler_command} '{input_filepath}' -o {output_filepath} {compiler_argument} {compiler_argument_big5}"
-        result = subprocess.run(command, shell=True, capture_output=True)
+        command = f"{compiler_command} '{input_filepath}' -o {output_filepath} {compiler_argument}"
+        result = subprocess.run(specify_shell(command), shell=True, capture_output=True)
         if result.returncode == 0:
             logging.debug(f'Compiled successfully')
             return result.returncode
         logging.debug(f'compilation failed, Try compiling with big5')
-        command = f"{compiler_command} '{input_filepath}' -o {output_filepath} {compiler_argument}"
-        result = subprocess.run(command, shell=True, capture_output=True)
+        command = f"{compiler_command} '{input_filepath}' -o {output_filepath} {compiler_argument} {compiler_argument_big5}"
+        result = subprocess.run(specify_shell(command), shell=True, capture_output=True)
         if result.returncode == 0:
             logging.debug(f'Compiled successfully')
             return result.returncode
         logging.debug(f'compilation fails twice, return failure result')
         return result.returncode
 
-    def executor(self, root):
-        directory_name = self.directory_name(root)
+    def executor(self, directory):
         logging.debug(f'start file execution')
-        command = f"echo '{' '.join(self.stdin)}' | {root}/{self.compile_output}"
+        executable_file = PurePosixPath(directory.joinpath(self.compile_output))
+        command = f"echo '{' '.join(self.stdin)}' | {executable_file}"
         try:
-            stdout = subprocess.check_output(command, shell=True, text=True, stderr=subprocess.STDOUT)
+            stdout = subprocess.check_output(specify_shell(command), shell=True, text=True, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as error:
-            logging.debug(f'execution failed,, maybe compilation failed')
-            return [directory_name, self.COMPILE_FAIL]
+            logging.debug(f'execution failed, maybe compilation failed')
+            return [directory.name, self.COMPILE_FAIL]
         logging.debug(f'execution succeed')
         logging.debug(f'start checking answers')
         answer = self.check_answer(stdout)
-        logging.debug(f'Check the answer complete')
-        return [directory_name, answer]
+        logging.debug(f'check the answer complete')
+        logging.debug(f'execute the file complete')
+        return [directory.name, answer]
 
     def check_answer(self, stdout):
         for or_pattern in self.output_pattern:
@@ -141,7 +138,8 @@ class AssistantTool:
         return self.WRONG
 
     def export_to_csv(self, answers):
-        csv_filename = f"{datetime.now().strftime('%Y-%m-%d_%H:%M:%S')}-{self.target_week}.csv"
+        csv_filename = f"{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}-{self.target_week}.csv"
         df = pd.DataFrame(answers)
-        Path(self.export_path).mkdir(parents=True, exist_ok=True)
-        df.to_csv(f'{self.export_path}/{csv_filename}', encoding='utf-8')
+        directory = Path(self.export_path)
+        directory.mkdir(parents=True, exist_ok=True)
+        df.to_csv(directory.joinpath(csv_filename), encoding='utf-8')

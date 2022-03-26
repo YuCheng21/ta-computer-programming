@@ -7,6 +7,7 @@ app = config['app']
 # App
 target_week = app.get('TargetWeek', 'week1')
 debug = app.getboolean('Debug', False)
+shell = app.get('Shell', '/bin/sh')
 
 # Grading
 grade = {
