@@ -99,19 +99,21 @@ class AssistantTool:
         compiler_command = 'gcc'
         compiler_argument = '-lstdc++ -lm -w'
         compiler_argument_big5 = '-finput-charset=big5'
-        command = f"{compiler_command} '{input_filepath}' -o {output_filepath} {compiler_argument}"
         if operation_system == 'Windows':
+            command = f"{compiler_command} '{input_filepath}' -o {output_filepath} {compiler_argument}"
             result = subprocess.run(specify_shell(command), shell=True, capture_output=True)
         else:  # Linux
+            command = f"{compiler_command} '{input_filepath}' -o {output_filepath} {compiler_argument} {compiler_argument_big5}"
             result = subprocess.run(command, shell=True, capture_output=True, executable=SHELL.__str__())
         if result.returncode == 0:
             logging.debug(f'Compiled successfully')
             return result.returncode
         logging.debug(f'compilation failed, Try compiling with big5')
-        command = f"{compiler_command} '{input_filepath}' -o {output_filepath} {compiler_argument} {compiler_argument_big5}"
         if operation_system == 'Windows':
+            command = f"{compiler_command} '{input_filepath}' -o {output_filepath} {compiler_argument} {compiler_argument_big5}"
             result = subprocess.run(specify_shell(command), shell=True, capture_output=True)
         else:  # Linux
+            command = f"{compiler_command} '{input_filepath}' -o {output_filepath} {compiler_argument}"
             result = subprocess.run(command, shell=True, capture_output=True, executable=SHELL.__str__())
         if result.returncode == 0:
             logging.debug(f'Compiled successfully')
