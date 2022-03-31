@@ -129,7 +129,7 @@ class AssistantTool:
             if operation_system == 'Windows':
                 stdout = subprocess.check_output(specify_shell(command), shell=True, text=True, stderr=subprocess.STDOUT)
             else:  # Linux
-                stdout = subprocess.check_output(command, shell=True, text=True, stderr=subprocess.STDOUT, executable=SHELL.__str__())
+                stdout = subprocess.check_output(command, shell=True, text=True, encoding='unicode_escape',stderr=subprocess.STDOUT, executable=SHELL.__str__())
         except subprocess.CalledProcessError as error:
             logging.debug(f'execution failed, maybe compilation failed')
             return [directory.name, self.COMPILE_FAIL]

@@ -29,12 +29,20 @@ week_args['week1'] = {
     'output_pattern': [[r'(-1)+', r'(-7)+']],
 }
 week_args['week2'] = {
-    'Notes': '課堂完成（一元二次重根與無解）',
+    'Title': '課堂完成（一元二次重根與無解）',
 }
 week_args['week3'] = {
+    'Title': '一元二次（x, y可能是負數）',
     'stdin': ["2", "-2"],
     'output_pattern': [[r'((0\.25)+|(1\/4)+)']],
 }
 week_args['week4'] = {
-    'Notes': '課堂完成（算圓周率）',
+    'Title': '課堂完成（算圓周率）',
+    'stdin': [],
+    'output_pattern': [[r'((3)+|(14)+)']],
+}
+week_args['week5'] = {
+    'Title': '用函式找最大公因數',
+    'stdin': ["12", "18"],
+    'output_pattern': [[r'(6)']],
 }
