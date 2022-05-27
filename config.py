@@ -46,3 +46,28 @@ week_args['week5'] = {
     'stdin': ["12", "18"],
     'output_pattern': [[r'(6)']],
 }
+week_args['week11-1'] = {
+    'Title': '找出矩陣的平均值，並設為閥值',
+    'stdin': [],
+    'output_pattern': [[r'(15)+|(0)+|(1)+']],
+}
+week_args['week11-2'] = {
+    'Title': '一維矩陣的卷積範例',
+    'stdin': [],
+    'output_pattern': [[r'(3)+|(16)+|(23)+|(27)+|(22)+|(5)+']],
+}
+week_args['week12-1'] = {
+    'Title': '字串複製',
+    'stdin': ["asdf"],
+    'output_pattern': [[r'(asdf)+']],
+}
+week_args['week12-2'] = {
+    'Title': '字串連接',
+    'stdin': ["mike", "123"],
+    'output_pattern': [[r'(mike123)+']],
+}
+week_args['week13'] = {
+    'Title': '二維矩陣的卷積範例',
+    'stdin': [],
+    'output_pattern': [[r'(2)+', r'(6)+', r'(-4)+', r'(5)+', r'(4)+', r'(0)+', r'(-1)+', r'(-5)+', r'(3)+', r'(-2)+']],
+}
