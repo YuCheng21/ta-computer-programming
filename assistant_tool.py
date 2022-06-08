@@ -22,7 +22,7 @@ SHELL = Path(config.shell)
 operation_system = platform.system()
 
 def allow_ext(file):
-    pattern = r'\.(c|cpp)$'
+    pattern = r'\.(c|cpp|CPP|C)$'
     regex = re.search(pattern, file)
     if regex is None:
         logging.debug(f'file extension not allowed')
